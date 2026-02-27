@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex do F3l1z</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icon.png') }}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo" onclick="window.location.href='/'">
+                <h1>Pokédex do F3l1z</h1>
+            </div>
+            <nav class="main-nav">
+                <a href="/" class="nav-button active">Início</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="filter-section">
+            <form action="/" method="GET" class="search-box">
+                <input type="text" name="search" placeholder="Nome ou número do Pokémon..." required>
+                <button type="submit">Buscar</button>
+            </form>
+        </div>
+
+        <div id="pokemon-grid" class="pokemon-grid">
+            {% for p in pokemons %}
+            <a href="/pokemon/{{ p.id }}" class="card-link">
+                <div class="card">
+                    <span class="number">#{{ '%03d' % p.id }}</span>
+                    <div class="pokemon-image">
+                        <img src="{{ p.image }}" alt="{{ p.name }}" loading="lazy">
+                    </div>
+                    <div class="pokemon-info">
+                        <h3 class="pokemon-name">{{ p.name }}</h3>
+                        <div class="types">
+                            {% for t in p.types %}
+                            <span class="badge {{ t }}">{{ t }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mini-evo-container">
+                            <div class="mini-evo-list">
+                                {% for evo in p.evolutions %}
+                                <img src="{{ evo.image }}" 
+                                     class="mini-evo-img {% if evo.is_current %}active{% endif %}" 
+                                     title="{{ evo.name }}">
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if not is_search %}
+        <div class="load-more-container">
+            <button id="btn-load-more" class="btn-load-more" data-offset="{{ next_offset }}">
+                Carregar Mais Pokémon
+            </button>
+        </div>
+        {% endif %}
+    </main>
+
+    <footer>
+        <p>Pokédex do F3l1z © 2024 - Desenvolvido com Flask e PokeAPI</p>
+    </footer>
+
+    <script>
+        const btn = document.getElementById('btn-load-more');
+        const grid = document.getElementById('pokemon-grid');
+
+        if (btn) {
+            btn.addEventListener('click', async () => {
+                const offset = btn.getAttribute('data-offset');
+                
+                // Estado de carregamento
+                btn.innerText = "A carregar...";
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch(`/api/pokemons?offset=${offset}`);
+                    const data = await response.json();
+
+                    if (data.pokemons.length > 0) {
+                        data.pokemons.forEach(p => {
+                            // 1. Gera o HTML das mini-evoluções para o novo card
+                            const evosHtml = p.evolutions.map(evo => `
+                                <img src="${evo.image}" 
+                                     class="mini-evo-img ${evo.is_current ? 'active' : ''}" 
+                                     title="${evo.name}">
+                            `).join('');
+
+                            // 2. Gera o HTML do card completo
+                            const cardHtml = `
+                                <a href="/pokemon/${p.id}" class="card-link">
+                                    <div class="card">
+                                        <span class="number">#${String(p.id).padStart(3, '0')}</span>
+                                        <div class="pokemon-image">
+                                            <img src="${p.image}" alt="${p.name}">
+                                        </div>
+                                        <div class="pokemon-info">
+                                            <h3 class="pokemon-name">${p.name}</h3>
+                                            <div class="types">
+                                                ${p.types.map(t => `<span class="badge ${t}">${t}</span>`).join('')}
+                                            </div>
+                                            <div class="mini-evo-container">
+                                                <div class="mini-evo-list">
+                                                    ${evosHtml}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            `;
+                            
+                            // 3. Anexa ao final da grelha (mantém os anteriores)
+                            grid.insertAdjacentHTML('beforeend', cardHtml);
+                        });
+
+                        // Atualiza o offset para a próxima busca
+                        btn.setAttribute('data-offset', data.next_offset);
+                        btn.innerText = "Carregar Mais Pokémon";
+                        btn.disabled = false;
+                    } else {
+                        btn.remove(); // Se não houver mais dados, remove o botão
+                    }
+                } catch (error) {
+                    console.error("Erro ao carregar novos Pokémon:", error);
+                    btn.innerText = "Erro ao carregar. Tente novamente.";
+                    btn.disabled = false;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

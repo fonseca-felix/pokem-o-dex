@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ pokemon.name }} - Detalhes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='icon.png') }}">
+</head>
+<body>
+    <header>
+        <div class="header-container">
+            <div class="logo" onclick="window.location.href='/'">
+                <h1>Pokédex do F3l1z</h1>
+            </div>
+            <a href="/" class="nav-button">Voltar à Lista</a>
+        </div>
+    </header>
+
+    <main class="detalhes-container">
+        <div class="pokemon-detalhe-card">
+            <div class="detalhe-header">
+                <h1 class="detalhe-nome">{{ pokemon.name }}</h1>
+                <span class="detalhe-numero">#{{ '%03d' % pokemon.id }}</span>
+            </div>
+
+            <div class="detalhe-conteudo">
+                <div class="detalhe-imagem-sec">
+                    <img src="{{ pokemon.image }}" alt="{{ pokemon.name }}" class="detalhe-imagem">
+                    <div class="types" style="margin-top: 20px;">
+                        {% for t in pokemon.types %}
+                        <span class="badge {{ t }}">{{ t }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="physique-info">
+                        <span><strong>Altura:</strong> {{ pokemon.height / 10 }} m</span>
+                        <span><strong>Peso:</strong> {{ pokemon.weight / 10 }} kg</span>
+                    </div>
+                </div>
+                
+                <div class="detalhe-info">
+                    
+
+                    <div class="stats-container">
+                        <h3>Estatísticas Base</h3>
+                        {% for stat_name, stat_value in pokemon.stats.items() %}
+                        <div class="stat-row">
+                            <span class="stat-label">{{ stat_name|replace('_', ' ')|upper }}</span>
+                            <div class="stat-bar-bg">
+                                <div class="stat-bar-fill {{ stat_name }}" style="width: {{ (stat_value / 255) * 100 }}%"></div>
+                            </div>
+                            <span class="stat-num">{{ stat_value }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="evolucao-secao">
+                <h2 class="secao-titulo">Linha Evolutiva</h2>
+                <div class="evolucoes-grid">
+                    {% for evo in pokemon.evolutions %}
+                    <div class="evo-card {% if evo.is_current %}evo-atual-card{% endif %}">
+                        <a href="/pokemon/{{ evo.id }}" style="text-decoration: none; color: inherit;">
+                            <img src="{{ evo.image }}" alt="{{ evo.name }}">
+                            <p class="evo-nome">{{ evo.name }}</p>
+                            <span class="evo-id-tag">#{{ '%03d' % evo.id }}</span>
+                        </a>
+                    </div>
+                    {% if not loop.last %}
+                    <div class="evo-seta-grande">→</div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>Pokédex do F3l1z © 2024 - Dados via PokeAPI</p>
+    </footer>
+</body>
+</html>
