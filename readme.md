@@ -8,6 +8,7 @@ O projeto está hospedado e pode ser acessado em:
 
 ## 🚀 Funcionalidades
 
+* **Interface Temática:** Botão de busca personalizado no formato de uma **Pokébola** e cores dinâmicas por tipo.
 * **Listagem Dinâmica:** Carregamento inicial de 64 Pokémon com sistema de "Carregar Mais" via API interna para otimizar o tráfego de dados.
 * **Busca em Tempo Real:** Permite pesquisar Pokémon específicos pelo nome ou número oficial da Pokédex.
 * **Página de Detalhes Completa:** Inclui informações detalhadas como:
@@ -30,7 +31,7 @@ O projeto está hospedado e pode ser acessado em:
 * `app.py`: Gerencia as rotas principais (Home, Detalhes e API de paginação).
 * `funcoes.py`: Contém a lógica de consumo da PokeAPI e processamento de dados.
 * `cache_data.py`: Armazena dados estáticos e estruturas iniciais para os primeiros 64 Pokémon.
-* `static/style.css`: Estilização completa, incluindo cores temáticas por tipo de Pokémon.
+* `static/style.css`: Estilização completa, incluindo a estilização da Pokébola de busca.
 * `templates/`: Arquivos HTML utilizando o motor de templates Jinja2.
 * `vercel.json`: Arquivo de configuração para hospedagem na plataforma Vercel.
 
